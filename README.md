@@ -1,2 +1,3 @@
 # profiterole
-GHC prof manipulation script
+
+GHC profile manipulation script
