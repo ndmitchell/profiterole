@@ -26,7 +26,7 @@ main = do
                  map fixTimeInh $
                  mergeRoots $ liftRoots roots vals
     putStr $ unlines $ intercalate ["",""] $
-        showVals (map rootLabel $ take 25 vals2) :
+        (" TOT   INH   IND" : showVals (map rootLabel $ take 25 vals2)) :
         [showVals [y{valId = replicate (i*2) ' ' ++ valId y} | (i,y) <- unwindTree x] | x <- vals2]
 
 unwindTree :: Tree a -> [(Int,a)]
@@ -94,28 +94,11 @@ fixTimeInh :: Tree Val -> Tree Val
 fixTimeInh (Node x xs) = Node x{valTimeInh = sum $ valTimeInd x : map (valTimeInh . rootLabel) ys} ys
     where ys = map fixTimeInh xs
 
-
-newtype Id = Id {fromId :: String} -- the ModuleName functionName pair 
-    deriving (Eq,Ord,Show)
-
-data Result2 = Result2
-    {key2 :: Id
-    ,timeTot :: Scientific -- spent in other trees
-    ,timeInh :: Scientific -- spent in this tree
-    ,timeInd :: Scientific -- spent in this node
-    } deriving Show
-
-showResults :: [Result2] -> [String]
-showResults xs = [intercalate "  " [g w1 timeTot, g w2 timeInh, g w3 timeInd, fromId key2] | Result2{..} <- xs]
-    where
-        w1 = maximum $ map (length . f . timeTot) xs
-        w2 = maximum $ map (length . f . timeInh) xs 
-        w3 = maximum $ map (length . f . timeInd) xs 
-        f x = case show x of
-            "0.0" -> "-"
-            ['0','.',x] -> ['.',x]
-            x -> x
-        g w x = let s = f x in replicate (w - length s) ' ' ++ s
-
 showVals :: [Val] -> [String]
-showVals xs = showResults [Result2{key2 = Id $ valId ++ " (" ++ show valEntries ++ ")", timeTot = valTimeTot, timeInh = valTimeInh, timeInd = valTimeInd} | Val{..} <- xs]
+showVals xs = [intercalate "  " $ [f valTimeTot, f valTimeInh, f valTimeInd, valId ++ " (" ++ show valEntries ++ ")"] | Val{..} <- xs]
+    where
+        f x = case show x of
+            "0.0" -> "   -"
+            "100.0" -> "99.9" -- avoid making the column bigger for a corner case
+            ['0','.',x] -> [' ',' ','.',x]
+            x -> replicate (4 - length x) ' ' ++ x
