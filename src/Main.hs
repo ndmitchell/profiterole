@@ -12,6 +12,7 @@ import qualified Data.Set as Set
 import qualified Data.Map as Map
 import qualified Data.Text as T
 import qualified Data.Text.Lazy.IO as T
+import System.IO.Extra
 import System.Environment
 
 
@@ -20,7 +21,8 @@ main = do
     args <- getArgs
     Right (Just tree) <- fmap costCentres . decode <$> T.readFile (head args)
     let vals = removeZero $ fmap toVal tree
-    let roots = findRoots vals
+    config <- readConfig ".profiterole.yaml"
+    let roots = findRoots config vals
     let vals2 =  sortOn (negate . valTimeInh . rootLabel) $
                  map (sortTreeOn (negate . valTimeTot)) $
                  map fixTimeInh $
@@ -28,6 +30,8 @@ main = do
     putStr $ unlines $ intercalate ["",""] $
         (" TOT   INH   IND" : showVals (map rootLabel $ take 25 vals2)) :
         [showVals [y{valId = replicate (i*2) ' ' ++ valId y} | (i,y) <- unwindTree x] | x <- vals2]
+    print $ sum $ map (valTimeInd . snd) $ concatMap unwindTree vals2
+    print $ sum $ map (valTimeInh . rootLabel) vals2
 
 unwindTree :: Tree a -> [(Int,a)]
 unwindTree = f 0
@@ -52,21 +56,32 @@ toVal CostCentre{..} = Val
     costCentreInhTime costCentreInhTime costCentreIndTime
     costCentreEntries
 
+data Config = Root | Bury deriving Eq
+
+readConfig :: FilePath -> IO (String -> Maybe Config)
+readConfig file = do
+    let f (stripPrefix "root: " -> Just x) = (x, Root)
+        f (stripPrefix "bury: " -> Just x) = (x, Bury)
+        f x = error $ "Bad config, got " ++ show x
+    mp <- Map.fromList . map f .  lines <$> readFile' file
+    return $ flip Map.lookup mp
+
 removeZero :: Tree Val -> Tree Val
 removeZero (Node x xs) = Node x $ map removeZero $ filter (not . isZero . rootLabel) xs
     where isZero Val{..} = valTimeTot == 0
 
 
 -- | A root has at least two distinct parents and isn't a local binding
-findRoots :: Tree Val -> Set.Set String
-findRoots x = Map.keysSet $
-    Map.filterWithKey (\k v -> not (isLocal k) && not (isSpecial k) && Set.size v > 1) $
+findRoots :: (String -> Maybe Config) -> Tree Val -> Set.Set String
+findRoots config x = Map.keysSet $
+    Map.filterWithKey (\k v -> case config k of
+        Just v -> v == Root
+        Nothing -> not (isLocal k) && Set.size v > 1) $
     Map.fromListWith (<>) $ f x
     where
         f (Node v xs) = [(rootId x, Set.singleton $ valId v) | x <- xs] ++
                         concatMap f xs
         isLocal (word1 -> (_, x)) =  any isAlpha x && '.' `elem` x
-        isSpecial (word1 -> (x, _)) = x `elem` ["Language.Haskell.Exts.ParseMonad","Language.Haskell.Exts.InternalLexer"]
 
 liftRoots :: Set.Set String -> Tree Val -> [Tree Val]
 liftRoots set x = fs set x

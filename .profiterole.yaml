@@ -1,0 +1,11 @@
+root: Language.Haskell.Exts parseFileContentsWithComments
+bury: Language.Haskell.Exts.ParseMonad pushContextL
+bury: Language.Haskell.Exts.ParseMonad pushComment
+bury: Language.Haskell.Exts.ParseMonad alternative
+bury: Language.Haskell.Exts.ParseMonad lexWhile
+bury: Language.Haskell.Exts.ParseMonad discard
+bury: Language.Haskell.Exts.InternalLexer topLexer
+bury: Language.Haskell.Exts.ParseMonad runParserWithModeComments
+root: HSE.All applyFixity
+root: HSE.All runCpp
+root: Hint.Match readMatch
