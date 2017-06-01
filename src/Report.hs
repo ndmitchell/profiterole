@@ -20,11 +20,12 @@ reportText vals =
     let vals2 = presort vals
         indent i x = x{name = replicate (i*2) ' ' ++ name x}
     in intercalate ["",""] $
-        (" TOT   INH   IND" : showText (map rootLabel $ take 25 vals2)) :
-        [showText $ flatten $ fmapTreeDepth indent x | x <- vals2]
+        (" TOT   INH   IND" : map (showText . rootLabel) (take 25 vals2)) :
+        [map showText $ flatten $ fmapTreeDepth indent x | x <- vals2]
 
-showText :: [Val] -> [String]
-showText xs = [intercalate "  " $ [showDouble timeTot, showDouble timeInh, showDouble timeInd, name ++ " (" ++ show entries ++ ")"] | Val{..} <- xs]
+showText :: Val -> String
+showText Val{..} = intercalate "  "
+    [showDouble timeTot, showDouble timeInh, showDouble timeInd, name ++ " (" ++ show entries ++ ")"]
 
 showDouble :: Double -> String
 showDouble x = case showDP 1 x of
