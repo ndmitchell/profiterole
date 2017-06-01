@@ -6,7 +6,6 @@ import GHC.Prof
 import Data.List.Extra
 import Data.Char
 import Data.Monoid
-import Data.Scientific
 import Data.Tree
 import qualified Data.Set as Set
 import qualified Data.Map as Map
@@ -55,7 +54,7 @@ liftRoots set x = fs set x
         fs set x = let (y,_,ys) = f set x in y:ys
 
         -- return (this tree, discount to apply up, new roots)
-        f :: Set.Set String -> Tree Val -> (Tree Val, Scientific, [Tree Val])
+        f :: Set.Set String -> Tree Val -> (Tree Val, Double, [Tree Val])
         f set (Node x ys)
             | name x `Set.member` set = (Node x{timeInh=0,timeInd=0} [], timeInh x, fs (Set.delete (name x) set) $ Node x ys)
             | otherwise = (Node x{timeInh = timeInh x - disc} child, disc, root)

@@ -4,6 +4,7 @@ module Report(displayVals) where
 
 import Data.List.Extra
 import Data.Tree
+import Numeric.Extra
 import Util
 import Type
 
@@ -21,7 +22,7 @@ displayVals vals =
 showVals :: [Val] -> [String]
 showVals xs = [intercalate "  " $ [f timeTot, f timeInh, f timeInd, name ++ " (" ++ show entries ++ ")"] | Val{..} <- xs]
     where
-        f x = case show x of
+        f x = case showDP 1 x of
             "0.0" -> "   -"
             "100.0" -> "99.9" -- avoid making the column bigger for a corner case
             ['0','.',x] -> [' ',' ','.',x]
