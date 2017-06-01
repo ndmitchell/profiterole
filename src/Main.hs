@@ -16,6 +16,8 @@ import System.Directory
 import Type
 import Config
 import Report
+import Data.Functor
+import Prelude
 
 
 main :: IO ()
