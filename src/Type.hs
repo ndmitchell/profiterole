@@ -34,11 +34,24 @@ mergeVal x y
 
 
 valFromProfile :: Profile -> Tree Val
-valFromProfile = fmap toVal . fromJust . costCentres
+valFromProfile prf = case costCentres prf of
+    Nothing -> error "Failed to generate value tree from profile (no idea why - corrupt profile?)"
+    Just x
+        | isNothing $ costCentreTicks $ rootLabel x -> fmap toValTime x
+        | otherwise -> fixTotInh $ fmap (toValTick $ (* 0.01) $ fromInteger $ totalTimeTicks $ profileTotalTime prf) x
 
-toVal :: CostCentre -> Val
-toVal CostCentre{..} = Val
+toValTime :: CostCentre -> Val
+toValTime CostCentre{..} = Val
     (T.unpack costCentreModule ++ " " ++ T.unpack costCentreName)
     inh inh (toRealFloat costCentreIndTime)
     costCentreEntries
     where inh = toRealFloat costCentreInhTime
+
+toValTick :: Double -> CostCentre -> Val
+toValTick tot cc = (toValTime cc){timeInd = fromInteger (fromJust $ costCentreTicks cc) / tot}
+
+fixTotInh :: Tree Val -> Tree Val
+fixTotInh (Node x xs) = Node x{timeTot=t, timeInh=t} ys
+    where
+        ys = map fixTotInh xs
+        t = timeInd x + sum (map (timeInh . rootLabel) ys)
