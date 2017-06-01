@@ -84,15 +84,6 @@ mergeRoots :: [Tree Val] -> [Tree Val]
 mergeRoots xs = Map.elems $ Map.fromListWith f [(name $ rootLabel x, x) | x <- xs]
     where f (Node x xs) (Node y ys) = Node (mergeVal x y) $ mergeRoots $ xs ++ ys
 
-mergeVal :: Val -> Val -> Val
-mergeVal x y
-    | name x /= name y = error $ "mergeRoots, invariant violated"
-    | otherwise = Val
-        {name = name x
-        ,timeTot = timeTot x + timeTot y
-        ,timeInh = timeInh x + timeInh y
-        ,timeInd = timeInd x + timeInd y
-        ,entries = entries x + entries y}
 
 ---------------------------------------------------------------------
 -- DISPLAY
