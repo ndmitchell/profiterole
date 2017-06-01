@@ -48,6 +48,8 @@ fmapForest op = f
     where f xs = op [Node y $ f ys | Node y ys <- xs]
 
 
+---------------------------------------------------------------------
+-- VAL DATA TYPE
 
 data Val = Val
     {name :: String -- Name of this node
@@ -63,6 +65,10 @@ toVal CostCentre{..} = Val
     costCentreInhTime costCentreInhTime costCentreIndTime
     costCentreEntries
 
+
+---------------------------------------------------------------------
+-- CONFIG
+
 data Config = Root | Bury deriving Eq
 
 readConfig :: FilePath -> IO (String -> Maybe Config)
@@ -72,6 +78,10 @@ readConfig file = do
         f x = error $ "Bad config, got " ++ show x
     mp <- Map.fromList . map f .  lines <$> readFile' file
     return $ flip Map.lookup mp
+
+
+---------------------------------------------------------------------
+-- TRANSFORMATIONS
 
 removeZero :: Tree Val -> Tree Val
 removeZero (Node x xs) = Node x $ map removeZero $ filter (not . isZero . rootLabel) xs
@@ -115,6 +125,9 @@ mergeVal x y
         ,timeInh = timeInh x + timeInh y
         ,timeInd = timeInd x + timeInd y
         ,entries = entries x + entries y}
+
+---------------------------------------------------------------------
+-- DISPLAY
 
 showVals :: [Val] -> [String]
 showVals xs = [intercalate "  " $ [f timeTot, f timeInh, f timeInd, name ++ " (" ++ show entries ++ ")"] | Val{..} <- xs]
