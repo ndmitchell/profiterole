@@ -1,6 +1,6 @@
 {-# LANGUAGE RecordWildCards, OverloadedStrings, ViewPatterns #-}
 
-module Report(displayVals) where
+module Report(reportText) where
 
 import Data.List.Extra
 import Data.Tree
@@ -9,10 +9,15 @@ import Util
 import Type
 
 
-displayVals :: [Tree Val] -> [String]
-displayVals vals =
-    let vals2 =  sortOn (negate . timeInh . rootLabel) $
-                 fmapForest (sortOn (negate . timeTot . rootLabel)) vals
+presort :: [Tree Val] -> [Tree Val]
+presort =
+    sortOn (negate . timeInh . rootLabel) .
+    fmapForest (sortOn (negate . timeTot . rootLabel))
+
+
+reportText :: [Tree Val] -> [String]
+reportText vals =
+    let vals2 = presort vals
         indent i x = x{name = replicate (i*2) ' ' ++ name x}
     in intercalate ["",""] $
         (" TOT   INH   IND" : showVals (map rootLabel $ take 25 vals2)) :
