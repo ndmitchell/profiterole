@@ -14,6 +14,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy.IO as T
 import System.IO.Extra
 import System.Environment
+import Util
 
 
 main :: IO ()
@@ -32,20 +33,6 @@ main = do
         [showVals $ flatten $ fmapTreeDepth indent x | x <- vals2]
     print $ sum $ map timeInd $ concatMap flatten vals2
     print $ sum $ map (timeInh . rootLabel) vals2
-
-
----------------------------------------------------------------------
--- UTILITIES
-
--- | 'fmap' over a 'Tree', but passing the depth as well
-fmapTreeDepth :: (Int -> a -> b) -> Tree a -> Tree b
-fmapTreeDepth op = f 0
-    where f i (Node x xs) = Node (op i x) $ map (f $! i+1) xs
-
--- | 'fmap' over a forest, bottom-up
-fmapForest :: ([Tree a] -> [Tree a]) -> [Tree a] -> [Tree a]
-fmapForest op = f
-    where f xs = op [Node y $ f ys | Node y ys <- xs]
 
 
 ---------------------------------------------------------------------
