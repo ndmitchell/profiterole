@@ -23,14 +23,14 @@ main = do
     let vals = removeZero $ fmap toVal tree
     config <- readConfig ".profiterole.yaml"
     let roots = findRoots config vals
-    let vals2 =  sortOn (negate . valTimeInh . rootLabel) $
-                 map (sortTreeOn (negate . valTimeTot)) $
+    let vals2 =  sortOn (negate . timeInh . rootLabel) $
+                 map (sortTreeOn (negate . timeTot)) $
                  mergeRoots $ liftRoots roots vals
     putStr $ unlines $ intercalate ["",""] $
         (" TOT   INH   IND" : showVals (map rootLabel $ take 25 vals2)) :
-        [showVals [y{valId = replicate (i*2) ' ' ++ valId y} | (i,y) <- unwindTree x] | x <- vals2]
-    print $ sum $ map (valTimeInd . snd) $ concatMap unwindTree vals2
-    print $ sum $ map (valTimeInh . rootLabel) vals2
+        [showVals [y{name = replicate (i*2) ' ' ++ name y} | (i,y) <- unwindTree x] | x <- vals2]
+    print $ sum $ map (timeInd . snd) $ concatMap unwindTree vals2
+    print $ sum $ map (timeInh . rootLabel) vals2
 
 unwindTree :: Tree a -> [(Int,a)]
 unwindTree = f 0
@@ -39,14 +39,12 @@ unwindTree = f 0
 sortTreeOn :: Ord b => (a -> b) -> Tree a -> Tree a
 sortTreeOn f (Node x xs) = Node x $ sortOn (f . rootLabel) (map (sortTreeOn f) xs)
 
-rootId = valId . rootLabel
-
 data Val = Val
-    {valId :: String -- Name of this node
-    ,valTimeTot :: Scientific -- Time spent under this node
-    ,valTimeInh :: Scientific -- Time spent under this node excluding rerooted
-    ,valTimeInd :: Scientific -- Time spent in this code
-    ,valEntries :: Integer -- Number of times this node was called
+    {name :: String -- Name of this node
+    ,timeTot :: Scientific -- Time spent under this node
+    ,timeInh :: Scientific -- Time spent under this node excluding rerooted
+    ,timeInd :: Scientific -- Time spent in this code
+    ,entries :: Integer -- Number of times this node was called
     } deriving Show
 
 toVal :: CostCentre -> Val
@@ -67,7 +65,7 @@ readConfig file = do
 
 removeZero :: Tree Val -> Tree Val
 removeZero (Node x xs) = Node x $ map removeZero $ filter (not . isZero . rootLabel) xs
-    where isZero Val{..} = valTimeTot == 0
+    where isZero Val{..} = timeTot == 0
 
 
 -- | A root has at least two distinct parents and isn't a local binding
@@ -78,7 +76,7 @@ findRoots config x = Map.keysSet $
         Nothing -> not (isLocal k) && Set.size v > 1) $
     Map.fromListWith (<>) $ f x
     where
-        f (Node v xs) = [(rootId x, Set.singleton $ valId v) | x <- xs] ++
+        f (Node v xs) = [(name $ rootLabel x, Set.singleton $ name v) | x <- xs] ++
                         concatMap f xs
         isLocal (word1 -> (_, x)) =  any isAlpha x && '.' `elem` x
 
@@ -90,26 +88,26 @@ liftRoots set x = fs set x
         -- return (this tree, discount to apply up, new roots)
         f :: Set.Set String -> Tree Val -> (Tree Val, Scientific, [Tree Val])
         f set (Node x ys)
-            | valId x `Set.member` set = (Node x{valTimeInh=0,valTimeInd=0} [], valTimeInh x, fs (Set.delete (valId x) set) $ Node x ys)
-            | otherwise = (Node x{valTimeInh = valTimeInh x - disc} child, disc, root)
+            | name x `Set.member` set = (Node x{timeInh=0,timeInd=0} [], timeInh x, fs (Set.delete (name x) set) $ Node x ys)
+            | otherwise = (Node x{timeInh = timeInh x - disc} child, disc, root)
                 where (child, sum -> disc, concat -> root) = unzip3 $ map (f set) ys
 
 mergeRoots :: [Tree Val] -> [Tree Val]
-mergeRoots xs = Map.elems $ Map.fromListWith f [(rootId x, x) | x <- xs]
+mergeRoots xs = Map.elems $ Map.fromListWith f [(name $ rootLabel x, x) | x <- xs]
     where f (Node x xs) (Node y ys) = Node (mergeVal x y) $ mergeRoots $ xs ++ ys
 
 mergeVal :: Val -> Val -> Val
 mergeVal x y
-    | valId x /= valId y = error $ "mergeRoots, invariant violated"
+    | name x /= name y = error $ "mergeRoots, invariant violated"
     | otherwise = Val
-        {valId = valId x
-        ,valTimeTot = valTimeTot x + valTimeTot y
-        ,valTimeInh = valTimeInh x + valTimeInh y
-        ,valTimeInd = valTimeInd x + valTimeInd y
-        ,valEntries = valEntries x + valEntries y}
+        {name = name x
+        ,timeTot = timeTot x + timeTot y
+        ,timeInh = timeInh x + timeInh y
+        ,timeInd = timeInd x + timeInd y
+        ,entries = entries x + entries y}
 
 showVals :: [Val] -> [String]
-showVals xs = [intercalate "  " $ [f valTimeTot, f valTimeInh, f valTimeInd, valId ++ " (" ++ show valEntries ++ ")"] | Val{..} <- xs]
+showVals xs = [intercalate "  " $ [f timeTot, f timeInh, f timeInd, name ++ " (" ++ show entries ++ ")"] | Val{..} <- xs]
     where
         f x = case show x of
             "0.0" -> "   -"
