@@ -42,11 +42,11 @@ sortTreeOn f (Node x xs) = Node x $ sortOn (f . rootLabel) (map (sortTreeOn f) x
 rootId = valId . rootLabel
 
 data Val = Val
-    {valId :: String
-    ,valTimeTot :: Scientific
-    ,valTimeInh :: Scientific
-    ,valTimeInd :: Scientific
-    ,valEntries :: Integer
+    {valId :: String -- Name of this node
+    ,valTimeTot :: Scientific -- Time spent under this node
+    ,valTimeInh :: Scientific -- Time spent under this node excluding rerooted
+    ,valTimeInd :: Scientific -- Time spent in this code
+    ,valEntries :: Integer -- Number of times this node was called
     } deriving Show
 
 toVal :: CostCentre -> Val
