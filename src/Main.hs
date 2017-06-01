@@ -11,10 +11,10 @@ import Data.Tree
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 import qualified Data.Text.Lazy.IO as T
-import System.IO.Extra
 import System.Environment
 import Util
 import Type
+import Config
 
 
 main :: IO ()
@@ -32,20 +32,6 @@ main = do
         [showVals $ flatten $ fmapTreeDepth indent x | x <- vals2]
     print $ sum $ map timeInd $ concatMap flatten vals2
     print $ sum $ map (timeInh . rootLabel) vals2
-
-
----------------------------------------------------------------------
--- CONFIG
-
-data Config = Root | Bury deriving Eq
-
-readConfig :: FilePath -> IO (String -> Maybe Config)
-readConfig file = do
-    let f (stripPrefix "root: " -> Just x) = (x, Root)
-        f (stripPrefix "bury: " -> Just x) = (x, Bury)
-        f x = error $ "Bad config, got " ++ show x
-    mp <- Map.fromList . map f .  lines <$> readFile' file
-    return $ flip Map.lookup mp
 
 
 ---------------------------------------------------------------------
