@@ -11,6 +11,7 @@ import qualified Data.Set as Set
 import qualified Data.Map as Map
 import qualified Data.Text.Lazy.IO as T
 import System.Environment
+import System.FilePath
 import Type
 import Config
 import Report
@@ -18,12 +19,13 @@ import Report
 
 main :: IO ()
 main = do
-    args <- getArgs
-    Right vals <- fmap (removeZero . valFromProfile) . decode <$> T.readFile (head args)
+    [arg] <- getArgs
+    Right vals <- fmap (removeZero . valFromProfile) . decode <$> T.readFile arg
     config <- readConfig ".profiterole.yaml"
     let roots = findRoots config vals
     let vals2 =  mergeRoots $ liftRoots roots vals
-    putStr $ unlines $ displayVals vals2
+    let arg0 = if takeExtension arg == ".prof" then dropExtension arg else arg
+    writeFile (arg0 <.> "profiterole.txt") $ unlines $ reportText vals2
     print $ sum $ map timeInd $ concatMap flatten vals2
     print $ sum $ map (timeInh . rootLabel) vals2
 
