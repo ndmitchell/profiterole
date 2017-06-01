@@ -23,13 +23,8 @@ main = do
     Right vals <- fmap (removeZero . valFromProfile) . decode <$> T.readFile (head args)
     config <- readConfig ".profiterole.yaml"
     let roots = findRoots config vals
-    let vals2 =  sortOn (negate . timeInh . rootLabel) $
-                 fmapForest (sortOn (negate . timeTot . rootLabel)) $
-                 mergeRoots $ liftRoots roots vals
-    let indent i x = x{name = replicate (i*2) ' ' ++ name x}
-    putStr $ unlines $ intercalate ["",""] $
-        (" TOT   INH   IND" : showVals (map rootLabel $ take 25 vals2)) :
-        [showVals $ flatten $ fmapTreeDepth indent x | x <- vals2]
+    let vals2 =  mergeRoots $ liftRoots roots vals
+    putStr $ unlines $ displayVals vals2
     print $ sum $ map timeInd $ concatMap flatten vals2
     print $ sum $ map (timeInh . rootLabel) vals2
 
@@ -73,6 +68,16 @@ mergeRoots xs = Map.elems $ Map.fromListWith f [(name $ rootLabel x, x) | x <- x
 
 ---------------------------------------------------------------------
 -- DISPLAY
+
+displayVals :: [Tree Val] -> [String]
+displayVals vals =
+    let vals2 =  sortOn (negate . timeInh . rootLabel) $
+                 fmapForest (sortOn (negate . timeTot . rootLabel)) vals
+        indent i x = x{name = replicate (i*2) ' ' ++ name x}
+    in intercalate ["",""] $
+        (" TOT   INH   IND" : showVals (map rootLabel $ take 25 vals2)) :
+        [showVals $ flatten $ fmapTreeDepth indent x | x <- vals2]
+
 
 showVals :: [Val] -> [String]
 showVals xs = [intercalate "  " $ [f timeTot, f timeInh, f timeInd, name ++ " (" ++ show entries ++ ")"] | Val{..} <- xs]
