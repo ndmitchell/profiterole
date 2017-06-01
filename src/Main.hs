@@ -5,17 +5,16 @@ module Main(main) where
 import GHC.Prof
 import Data.List.Extra
 import Data.Char
-import Data.Maybe
 import Data.Monoid
 import Data.Scientific
 import Data.Tree
 import qualified Data.Set as Set
 import qualified Data.Map as Map
-import qualified Data.Text as T
 import qualified Data.Text.Lazy.IO as T
 import System.IO.Extra
 import System.Environment
 import Util
+import Type
 
 
 main :: IO ()
@@ -33,27 +32,6 @@ main = do
         [showVals $ flatten $ fmapTreeDepth indent x | x <- vals2]
     print $ sum $ map timeInd $ concatMap flatten vals2
     print $ sum $ map (timeInh . rootLabel) vals2
-
-
----------------------------------------------------------------------
--- VAL DATA TYPE
-
-data Val = Val
-    {name :: String -- Name of this node
-    ,timeTot :: Scientific -- Time spent under this node
-    ,timeInh :: Scientific -- Time spent under this node excluding rerooted
-    ,timeInd :: Scientific -- Time spent in this code
-    ,entries :: Integer -- Number of times this node was called
-    } deriving Show
-
-valFromProfile :: Profile -> Tree Val
-valFromProfile = fmap toVal . fromJust . costCentres
-
-toVal :: CostCentre -> Val
-toVal CostCentre{..} = Val
-    (T.unpack costCentreModule ++ " " ++ T.unpack costCentreName)
-    costCentreInhTime costCentreInhTime costCentreIndTime
-    costCentreEntries
 
 
 ---------------------------------------------------------------------
