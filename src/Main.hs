@@ -24,20 +24,30 @@ main = do
     config <- readConfig ".profiterole.yaml"
     let roots = findRoots config vals
     let vals2 =  sortOn (negate . timeInh . rootLabel) $
-                 map (sortTreeOn (negate . timeTot)) $
+                 fmapForest (sortOn (negate . timeTot . rootLabel)) $
                  mergeRoots $ liftRoots roots vals
+    let indent i x = x{name = replicate (i*2) ' ' ++ name x}
     putStr $ unlines $ intercalate ["",""] $
         (" TOT   INH   IND" : showVals (map rootLabel $ take 25 vals2)) :
-        [showVals [y{name = replicate (i*2) ' ' ++ name y} | (i,y) <- treeDepth x] | x <- vals2]
+        [showVals $ flatten $ fmapTreeDepth indent x | x <- vals2]
     print $ sum $ map timeInd $ concatMap flatten vals2
     print $ sum $ map (timeInh . rootLabel) vals2
 
-treeDepth :: Tree a -> [(Int,a)]
-treeDepth = f 0
-    where f i (Node x xs) = (i,x) : concatMap (f $! i+1) xs
 
-sortTreeOn :: Ord b => (a -> b) -> Tree a -> Tree a
-sortTreeOn f (Node x xs) = Node x $ sortOn (f . rootLabel) (map (sortTreeOn f) xs)
+---------------------------------------------------------------------
+-- UTILITIES
+
+-- | 'fmap' over a 'Tree', but passing the depth as well
+fmapTreeDepth :: (Int -> a -> b) -> Tree a -> Tree b
+fmapTreeDepth op = f 0
+    where f i (Node x xs) = Node (op i x) $ map (f $! i+1) xs
+
+-- | 'fmap' over a forest, bottom-up
+fmapForest :: ([Tree a] -> [Tree a]) -> [Tree a] -> [Tree a]
+fmapForest op = f
+    where f xs = op [Node y $ f ys | Node y ys <- xs]
+
+
 
 data Val = Val
     {name :: String -- Name of this node
