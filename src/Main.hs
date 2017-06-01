@@ -96,17 +96,17 @@ liftRoots set x = fs set x
 
 mergeRoots :: [Tree Val] -> [Tree Val]
 mergeRoots xs = Map.elems $ Map.fromListWith f [(rootId x, x) | x <- xs]
-    where
-        f (Node x1 xs) (Node y1 ys)
-            | valId x1 /= valId y1 = error $ "mergeRoots, invariant violated"
-            | otherwise = Node xy1 $ mergeRoots $ xs ++ ys
-            where
-                xy1 = Val {valId = valId x1
-                          ,valTimeTot = valTimeTot x1 + valTimeTot y1
-                          ,valTimeInh = valTimeInh x1 + valTimeInh y1
-                          ,valTimeInd = valTimeInd x1 + valTimeInd y1
-                          ,valEntries = valEntries x1 + valEntries y1}
+    where f (Node x xs) (Node y ys) = Node (mergeVal x y) $ mergeRoots $ xs ++ ys
 
+mergeVal :: Val -> Val -> Val
+mergeVal x y
+    | valId x /= valId y = error $ "mergeRoots, invariant violated"
+    | otherwise = Val
+        {valId = valId x
+        ,valTimeTot = valTimeTot x + valTimeTot y
+        ,valTimeInh = valTimeInh x + valTimeInh y
+        ,valTimeInd = valTimeInd x + valTimeInd y
+        ,valEntries = valEntries x + valEntries y}
 
 showVals :: [Val] -> [String]
 showVals xs = [intercalate "  " $ [f valTimeTot, f valTimeInh, f valTimeInd, valId ++ " (" ++ show valEntries ++ ")"] | Val{..} <- xs]
