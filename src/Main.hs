@@ -25,7 +25,6 @@ main = do
     let roots = findRoots config vals
     let vals2 =  sortOn (negate . valTimeInh . rootLabel) $
                  map (sortTreeOn (negate . valTimeTot)) $
-                 map fixTimeInh $
                  mergeRoots $ liftRoots roots vals
     putStr $ unlines $ intercalate ["",""] $
         (" TOT   INH   IND" : showVals (map rootLabel $ take 25 vals2)) :
@@ -108,9 +107,6 @@ mergeRoots xs = Map.elems $ Map.fromListWith f [(rootId x, x) | x <- xs]
                           ,valTimeInd = valTimeInd x1 + valTimeInd y1
                           ,valEntries = valEntries x1 + valEntries y1}
 
-fixTimeInh :: Tree Val -> Tree Val
-fixTimeInh (Node x xs) = Node x{valTimeInh = sum $ valTimeInd x : map (valTimeInh . rootLabel) ys} ys
-    where ys = map fixTimeInh xs
 
 showVals :: [Val] -> [String]
 showVals xs = [intercalate "  " $ [f valTimeTot, f valTimeInh, f valTimeInd, valId ++ " (" ++ show valEntries ++ ")"] | Val{..} <- xs]
