@@ -1,4 +1,4 @@
-{-# LANGUAGE RecordWildCards, OverloadedStrings, ViewPatterns #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Type(
     Val(..),
@@ -24,7 +24,7 @@ data Val = Val
 
 mergeVal :: Val -> Val -> Val
 mergeVal x y
-    | name x /= name y = error $ "mergeRoots, invariant violated"
+    | name x /= name y = error "mergeRoots, invariant violated"
     | otherwise = Val
         {name = name x
         ,timeTot = timeTot x + timeTot y

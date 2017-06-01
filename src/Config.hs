@@ -1,4 +1,4 @@
-{-# LANGUAGE RecordWildCards, OverloadedStrings, ViewPatterns #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Config(readConfig, Config(..)) where
 

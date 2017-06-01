@@ -1,4 +1,4 @@
-{-# LANGUAGE RecordWildCards, OverloadedStrings, ViewPatterns #-}
+{-# LANGUAGE RecordWildCards, ViewPatterns #-}
 
 module Main(main) where
 
@@ -52,7 +52,7 @@ findRoots config x = Map.keysSet $
         isLocal (word1 -> (_, x)) =  any isAlpha x && '.' `elem` x
 
 liftRoots :: Set.Set String -> Tree Val -> [Tree Val]
-liftRoots set x = fs set x
+liftRoots = fs
     where
         fs set x = let (y,_,ys) = f set x in y:ys
 

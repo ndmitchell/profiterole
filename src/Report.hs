@@ -1,4 +1,4 @@
-{-# LANGUAGE RecordWildCards, OverloadedStrings, ViewPatterns #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Report(
     reportText,
