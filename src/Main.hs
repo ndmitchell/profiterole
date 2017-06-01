@@ -5,6 +5,7 @@ module Main(main) where
 import GHC.Prof
 import Data.List.Extra
 import Data.Char
+import Data.Maybe
 import Data.Monoid
 import Data.Scientific
 import Data.Tree
@@ -20,8 +21,7 @@ import Util
 main :: IO ()
 main = do
     args <- getArgs
-    Right (Just tree) <- fmap costCentres . decode <$> T.readFile (head args)
-    let vals = removeZero $ fmap toVal tree
+    Right vals <- fmap (removeZero . valFromProfile) . decode <$> T.readFile (head args)
     config <- readConfig ".profiterole.yaml"
     let roots = findRoots config vals
     let vals2 =  sortOn (negate . timeInh . rootLabel) $
@@ -45,6 +45,9 @@ data Val = Val
     ,timeInd :: Scientific -- Time spent in this code
     ,entries :: Integer -- Number of times this node was called
     } deriving Show
+
+valFromProfile :: Profile -> Tree Val
+valFromProfile = fmap toVal . fromJust . costCentres
 
 toVal :: CostCentre -> Val
 toVal CostCentre{..} = Val
