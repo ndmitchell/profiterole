@@ -1,3 +1,3 @@
-# profiterole
+# Profiterole [![Hackage version](https://img.shields.io/hackage/v/profiterole.svg?label=Hackage)](https://hackage.haskell.org/package/profiterole) [![Stackage version](https://www.stackage.org/package/profiterole/badge/lts?label=Stackage)](https://www.stackage.org/package/profiterole) [![Linux Build Status](https://img.shields.io/travis/ndmitchell/profiterole.svg?label=Linux%20build)](https://travis-ci.org/ndmitchell/profiterole) [![Windows Build Status](https://img.shields.io/appveyor/ci/ndmitchell/profiterole.svg?label=Windows%20build)](https://ci.appveyor.com/project/ndmitchell/profiterole)
 
-GHC profile manipulation script
+GHC profile manipulation script.
