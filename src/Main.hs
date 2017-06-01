@@ -86,11 +86,14 @@ findRoots config x = Map.keysSet $
 liftRoots :: Set.Set String -> Tree Val -> [Tree Val]
 liftRoots set x = fs set x
     where
-        fs set x = uncurry (:) $ f set x
-        f set (Node x ys)
-            | valId x `Set.member` set = (Node x{valTimeInh=0,valTimeInd=0} [], fs (Set.delete (valId x) set) $ Node x ys)
-            | otherwise = let (as, bs) = unzip $ map (f set) ys in (Node x as, concat bs)
+        fs set x = let (y,_,ys) = f set x in y:ys
 
+        -- return (this tree, discount to apply up, new roots)
+        f :: Set.Set String -> Tree Val -> (Tree Val, Scientific, [Tree Val])
+        f set (Node x ys)
+            | valId x `Set.member` set = (Node x{valTimeInh=0,valTimeInd=0} [], valTimeInh x, fs (Set.delete (valId x) set) $ Node x ys)
+            | otherwise = (Node x{valTimeInh = valTimeInh x - disc} child, disc, root)
+                where (child, sum -> disc, concat -> root) = unzip3 $ map (f set) ys
 
 mergeRoots :: [Tree Val] -> [Tree Val]
 mergeRoots xs = Map.elems $ Map.fromListWith f [(rootId x, x) | x <- xs]
