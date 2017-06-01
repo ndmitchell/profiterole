@@ -28,12 +28,12 @@ main = do
                  mergeRoots $ liftRoots roots vals
     putStr $ unlines $ intercalate ["",""] $
         (" TOT   INH   IND" : showVals (map rootLabel $ take 25 vals2)) :
-        [showVals [y{name = replicate (i*2) ' ' ++ name y} | (i,y) <- unwindTree x] | x <- vals2]
-    print $ sum $ map (timeInd . snd) $ concatMap unwindTree vals2
+        [showVals [y{name = replicate (i*2) ' ' ++ name y} | (i,y) <- treeDepth x] | x <- vals2]
+    print $ sum $ map timeInd $ concatMap flatten vals2
     print $ sum $ map (timeInh . rootLabel) vals2
 
-unwindTree :: Tree a -> [(Int,a)]
-unwindTree = f 0
+treeDepth :: Tree a -> [(Int,a)]
+treeDepth = f 0
     where f i (Node x xs) = (i,x) : concatMap (f $! i+1) xs
 
 sortTreeOn :: Ord b => (a -> b) -> Tree a -> Tree a
