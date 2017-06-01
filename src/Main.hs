@@ -26,6 +26,7 @@ main = do
     let vals2 =  mergeRoots $ liftRoots roots vals
     let arg0 = if takeExtension arg == ".prof" then dropExtension arg else arg
     writeFile (arg0 <.> "profiterole.txt") $ unlines $ reportText vals2
+    writeFile (arg0 <.> "profiterole.html") $ unlines $ reportHTML vals2
     print $ sum $ map timeInd $ concatMap flatten vals2
     print $ sum $ map (timeInh . rootLabel) vals2
 
