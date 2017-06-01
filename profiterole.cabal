@@ -29,6 +29,7 @@ executable profiterole
     build-depends:
         base >= 4.6 && < 5,
         containers,
+        directory,
         extra,
         filepath,
         ghc-prof,

@@ -1,6 +1,6 @@
 {-# LANGUAGE ViewPatterns #-}
 
-module Config(readConfig, Config(..)) where
+module Config(emptyConfig, readConfig, Config(..)) where
 
 import Data.List.Extra
 import qualified Data.Map as Map
@@ -16,3 +16,6 @@ readConfig file = do
         f x = error $ "Bad config, got " ++ show x
     mp <- Map.fromList . map f .  lines <$> readFile' file
     return $ flip Map.lookup mp
+
+emptyConfig :: String -> Maybe Config
+emptyConfig _ = Nothing

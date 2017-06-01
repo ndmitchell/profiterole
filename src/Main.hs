@@ -12,6 +12,7 @@ import qualified Data.Map as Map
 import qualified Data.Text.Lazy.IO as T
 import System.Environment
 import System.FilePath
+import System.Directory
 import Type
 import Config
 import Report
@@ -21,7 +22,8 @@ main :: IO ()
 main = do
     [arg] <- getArgs
     Right vals <- fmap (removeZero . valFromProfile) . decode <$> T.readFile arg
-    config <- readConfig ".profiterole.yaml"
+    b <- doesFileExist ".profiterole.yaml"
+    config <- if b then readConfig ".profiterole.yaml" else return emptyConfig
     let roots = findRoots config vals
     let vals2 =  mergeRoots $ liftRoots roots vals
     let arg0 = if takeExtension arg == ".prof" then dropExtension arg else arg
