@@ -12,9 +12,9 @@ import qualified Data.Set as Set
 import qualified Data.Map as Map
 import qualified Data.Text.Lazy.IO as T
 import System.Environment
-import Util
 import Type
 import Config
+import Report
 
 
 main :: IO ()
@@ -64,26 +64,3 @@ liftRoots set x = fs set x
 mergeRoots :: [Tree Val] -> [Tree Val]
 mergeRoots xs = Map.elems $ Map.fromListWith f [(name $ rootLabel x, x) | x <- xs]
     where f (Node x xs) (Node y ys) = Node (mergeVal x y) $ mergeRoots $ xs ++ ys
-
-
----------------------------------------------------------------------
--- DISPLAY
-
-displayVals :: [Tree Val] -> [String]
-displayVals vals =
-    let vals2 =  sortOn (negate . timeInh . rootLabel) $
-                 fmapForest (sortOn (negate . timeTot . rootLabel)) vals
-        indent i x = x{name = replicate (i*2) ' ' ++ name x}
-    in intercalate ["",""] $
-        (" TOT   INH   IND" : showVals (map rootLabel $ take 25 vals2)) :
-        [showVals $ flatten $ fmapTreeDepth indent x | x <- vals2]
-
-
-showVals :: [Val] -> [String]
-showVals xs = [intercalate "  " $ [f timeTot, f timeInh, f timeInd, name ++ " (" ++ show entries ++ ")"] | Val{..} <- xs]
-    where
-        f x = case show x of
-            "0.0" -> "   -"
-            "100.0" -> "99.9" -- avoid making the column bigger for a corner case
-            ['0','.',x] -> [' ',' ','.',x]
-            x -> replicate (4 - length x) ' ' ++ x
