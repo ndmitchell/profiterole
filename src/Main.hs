@@ -16,6 +16,8 @@ import System.Directory
 import Type
 import Config
 import Report
+import Data.Functor
+import Prelude
 
 
 main :: IO ()
@@ -45,7 +47,8 @@ removeZero (Node x xs) = Node x $ map removeZero $ filter (not . isZero . rootLa
 findRoots :: (String -> Maybe Config) -> Tree Val -> Set.Set String
 findRoots config x = Map.keysSet $
     Map.filterWithKey (\k v -> case config k of
-        Just v -> v == Root
+        Just Root -> True
+        Just Bury -> False
         Nothing -> not (isLocal k) && Set.size v > 1) $
     Map.fromListWith (<>) $ f x
     where

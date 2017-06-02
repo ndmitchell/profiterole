@@ -5,6 +5,8 @@ module Config(emptyConfig, readConfig, Config(..)) where
 import Data.List.Extra
 import qualified Data.Map as Map
 import System.IO.Extra
+import Data.Functor
+import Prelude
 
 
 data Config = Root | Bury deriving Eq
