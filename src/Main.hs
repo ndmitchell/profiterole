@@ -30,8 +30,12 @@ main = do
     let roots = findRoots config vals
     let vals2 =  mergeRoots $ liftRoots roots vals
     let arg0 = if takeExtension arg == ".prof" then dropExtension arg else arg
-    writeFile (arg0 <.> "profiterole.txt") $ unlines $ reportText vals2
-    writeFile (arg0 <.> "profiterole.html") $ unlines $ reportHTML vals2
+    let writeTo file x = do
+            putStrLn $ "Writing to " ++ file ++ " ..."
+            writeFile file x
+    writeTo (arg0 <.> "profiterole.txt") $ unlines $ reportText vals2
+    writeTo (arg0 <.> "profiterole.html") $ unlines $ reportHTML vals2
+    putStrLn "Done"
     when False $ do
         -- Should check the time is not lost, if it is, suggest -P
         print $ sum $ map timeInd $ concatMap flatten vals2
