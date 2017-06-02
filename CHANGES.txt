@@ -1,3 +1,4 @@
 Changelog for Profiterole
 
+0.1
     Initial version
