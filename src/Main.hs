@@ -3,6 +3,7 @@
 module Main(main) where
 
 import GHC.Prof
+import Control.Monad
 import Data.List.Extra
 import Data.Char
 import Data.Monoid
@@ -31,8 +32,10 @@ main = do
     let arg0 = if takeExtension arg == ".prof" then dropExtension arg else arg
     writeFile (arg0 <.> "profiterole.txt") $ unlines $ reportText vals2
     writeFile (arg0 <.> "profiterole.html") $ unlines $ reportHTML vals2
-    print $ sum $ map timeInd $ concatMap flatten vals2
-    print $ sum $ map (timeInh . rootLabel) vals2
+    when False $ do
+        -- Should check the time is not lost, if it is, suggest -P
+        print $ sum $ map timeInd $ concatMap flatten vals2
+        print $ sum $ map (timeInh . rootLabel) vals2
 
 
 ---------------------------------------------------------------------
