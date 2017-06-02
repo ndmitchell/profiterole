@@ -10,7 +10,8 @@ maintainer:         Neil Mitchell <ndmitchell@gmail.com>
 copyright:          Neil Mitchell 2017
 synopsis:           Restructure GHC profile reports
 description:
-    Make the profile report simpler.
+    Given a GHC profile output, this tool generates alternative views on the data,
+    which are typically more concise and may reveal new insights.
 homepage:           https://github.com/ndmitchell/profiterole#readme
 bug-reports:        https://github.com/ndmitchell/profiterole/issues
 extra-doc-files:
