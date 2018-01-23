@@ -1,4 +1,4 @@
 Changelog for Profiterole
 
-0.1
+0.1, released 2017-06-02
     Initial version
