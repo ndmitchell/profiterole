@@ -17,7 +17,7 @@ readConfig file = do
         f (stripPrefix "bury: " -> Just x) = (x, Bury)
         f x = error $ "Bad config, got " ++ show x
     mp <- Map.fromList . map f .  lines <$> readFile' file
-    return $ flip Map.lookup mp
+    pure $ flip Map.lookup mp
 
 emptyConfig :: String -> Maybe Config
 emptyConfig _ = Nothing

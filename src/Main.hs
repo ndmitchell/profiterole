@@ -26,7 +26,7 @@ main = do
     [arg] <- getArgs
     Right vals <- fmap (removeZero . valFromProfile) . decode <$> T.readFile arg
     b <- doesFileExist ".profiterole.yaml"
-    config <- if b then readConfig ".profiterole.yaml" else return emptyConfig
+    config <- if b then readConfig ".profiterole.yaml" else pure emptyConfig
     let roots = findRoots config vals
     let vals2 =  mergeRoots $ liftRoots roots vals
     let arg0 = if takeExtension arg == ".prof" then dropExtension arg else arg
