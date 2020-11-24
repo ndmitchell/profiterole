@@ -1,4 +1,4 @@
-# Profiterole [![Hackage version](https://img.shields.io/hackage/v/profiterole.svg?label=Hackage)](https://hackage.haskell.org/package/profiterole) [![Stackage version](https://www.stackage.org/package/profiterole/badge/nightly?label=Stackage)](https://www.stackage.org/package/profiterole) [![Linux build status](https://img.shields.io/travis/ndmitchell/profiterole/master.svg?label=Linux%20build)](https://travis-ci.org/ndmitchell/profiterole) [![Windows build status](https://img.shields.io/appveyor/ci/ndmitchell/profiterole/master.svg?label=Windows%20build)](https://ci.appveyor.com/project/ndmitchell/profiterole)
+# Profiterole [![Hackage version](https://img.shields.io/hackage/v/profiterole.svg?label=Hackage)](https://hackage.haskell.org/package/profiterole) [![Stackage version](https://www.stackage.org/package/profiterole/badge/nightly?label=Stackage)](https://www.stackage.org/package/profiterole) [![Build status](https://img.shields.io/github/workflow/status/ndmitchell/profiterole/ci.svg)](https://github.com/ndmitchell/profiterole/actions)
 
 Script for reading and restructuring a GHC profile script.
 
