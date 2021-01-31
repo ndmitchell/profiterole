@@ -7,7 +7,7 @@ license-file:       LICENSE
 category:           Development
 author:             Neil Mitchell <ndmitchell@gmail.com>
 maintainer:         Neil Mitchell <ndmitchell@gmail.com>
-copyright:          Neil Mitchell 2017-2020
+copyright:          Neil Mitchell 2017-2021
 synopsis:           Restructure GHC profile reports
 description:
     Given a GHC profile output, this tool generates alternative views on the data,
